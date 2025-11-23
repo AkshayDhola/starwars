@@ -1,26 +1,26 @@
-# Install.ps1 for Windows
-# Run this script as Administrator (Right-click -> Run as Administrator)
+$repo = "AkshayDhola/starwars"
+$version = "v1.0.0"
+$binaryName = "starwars.exe"
+$zipName = "starwars-win-x64-v1.0.0.tar.gz"
 
-Write-Host "Starting Star Wars game installation..." -ForegroundColor Cyan
+Write-Host "📦 Downloading $binaryName $version ..."
 
-# Define installation directory and executable name
-$installDir = "C:\Program Files\StarWarsGame"
-$exeName = "starwars.exe" # Ensure your actual executable is named 'starwars.exe'
+Invoke-WebRequest -Uri "https://github.com/$repo/releases/download/$version/$zipName" -OutFile $zipName
 
-# Create installation directory and copy files
-if (!(Test-Path -Path $installDir)) {
-    New-Item -Path $installDir -ItemType Directory | Out-Null
-}
-Copy-Item -Path .\* -Destination $installDir -Recurse
+Write-Host "📂 Extracting..."
+Expand-Archive -Path $zipName -DestinationPath "$env:TEMP\starwars" -Force
 
-# Add the installation directory to the System PATH environment variable
-$path = (Get-ItemProperty HKLM:\System\CurrentControlSet\Control\SessionManager\Environment -Name PATH).Path
-if ($path -notlike "*$installDir*") {
-    $newPath = $path + ";" + $installDir
-    Set-ItemProperty HKLM:\System\CurrentControlSet\Control\SessionManager\Environment -Name PATH -Value $newPath
-    Write-Host "PATH updated. You may need to restart your terminal or Explorer for changes to take effect." -ForegroundColor Yellow
-} else {
-    Write-Host "Directory already in PATH." -ForegroundColor Green
+Write-Host "🚚 Moving binary to PATH location..."
+Move-Item "$env:TEMP\starwars\$binaryName" "$env:ProgramFiles\starwars\$binaryName" -Force
+
+$envPath = "$env:ProgramFiles\starwars"
+if ($env:Path -notlike "*$envPath*") {
+    setx PATH "$env:Path;$envPath"
 }
 
-Write-Host "Installation complete. Try running 'starwars' in a new CMD or PowerShell window." -ForegroundColor Cyan
+Write-Host "🧹 Cleaning..."
+Remove-Item $zipName
+
+Write-Host ""
+Write-Host "🎉 Installation complete!"
+Write-Host "Reopen PowerShell and run: starwars --help"

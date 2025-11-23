@@ -1,23 +1,27 @@
-#!/bin/bash
-# install.sh for Linux/macOS
+#!/usr/bin/env bash
 
-echo "Starting Star Wars game installation..."
+set -e
 
-# Check for root privileges
-if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root (use sudo ./install.sh)" 1>&2
-   exit 1
-fi
+REPO="AkshayDhola/starwars"
+VERSION="v1.0.0"
+BINARY_NAME="starwars"
+ZIP_NAME="starwars-linux-x64-v1.0.0.tar.gz"
 
-INSTALL_DIR="/opt/starwars"
-BIN_DIR="/usr/local/bin"
-EXECUTABLE_NAME="starwars" # Ensure your actual executable is named 'starwars'
+echo "📦 Downloading $BINARY_NAME $VERSION ..."
 
-mkdir -p "$INSTALL_DIR"
-cp -r * "$INSTALL_DIR"
-chmod +x "$INSTALL_DIR/$EXECUTABLE_NAME"
+curl -L -o $ZIP_NAME "https://github.com/$REPO/releases/download/$VERSION/$ZIP_NAME"
 
-# Create a symbolic link so 'starwars' command works globally
-ln -sf "$INSTALL_DIR/$EXECUTABLE_NAME" "$BIN_DIR/$EXECUTABLE_NAME"
+echo "📂 Extracting..."
+unzip -o $ZIP_NAME -d /tmp/$BINARY_NAME
 
-echo "Installation complete. You can now run 'starwars' from any terminal."
+echo "🚚 Moving binary to /usr/local/bin ..."
+sudo mv /tmp/$BINARY_NAME/$BINARY_NAME /usr/local/bin/$BINARY_NAME
+
+echo "🧹 Cleaning up..."
+rm -rf /tmp/$BINARY_NAME $ZIP_NAME
+
+chmod +x /usr/local/bin/$BINARY_NAME
+
+echo ""
+echo "🎉 Installation complete!"
+echo "Run '$BINARY_NAME --help' to get started."
