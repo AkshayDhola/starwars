@@ -1,27 +1,23 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-set -e
+echo "📦 Downloading StarWars v1.0.0 for Linux..."
 
-REPO="AkshayDhola/starwars"
-VERSION="v1.0.0"
-BINARY_NAME="starwars"
-ZIP_NAME="starwars-linux-x64-v1.0.0.tar.gz"
+URL="https://github.com/AkshayDhola/starwars/releases/download/v1.0.0/starwars-linux-x64-v1.0.0.tar.gz"
+TMP_DIR="/tmp/starwars-download"
+INSTALL_DIR="/opt/starwars"
+BIN="/usr/local/bin/starwars"
 
-echo "📦 Downloading $BINARY_NAME $VERSION ..."
+mkdir -p "$TMP_DIR"
+cd "$TMP_DIR" || exit
 
-curl -L -o $ZIP_NAME "https://github.com/$REPO/releases/download/$VERSION/$ZIP_NAME"
+curl -L -o starwars.tar.gz "$URL"
 
 echo "📂 Extracting..."
-unzip -o $ZIP_NAME -d /tmp/$BINARY_NAME
+tar -xzf starwars.tar.gz
 
-echo "🚚 Moving binary to /usr/local/bin ..."
-sudo mv /tmp/$BINARY_NAME/$BINARY_NAME /usr/local/bin/$BINARY_NAME
+echo "🚀 Installing..."
+sudo mkdir -p "$INSTALL_DIR"
+sudo cp -r ./* "$INSTALL_DIR"
+sudo ln -sf "$INSTALL_DIR/starwars" "$BIN"
 
-echo "🧹 Cleaning up..."
-rm -rf /tmp/$BINARY_NAME $ZIP_NAME
-
-chmod +x /usr/local/bin/$BINARY_NAME
-
-echo ""
-echo "🎉 Installation complete!"
-echo "Run '$BINARY_NAME --help' to get started."
+echo "🎉 Installation complete! Run: starwars"
